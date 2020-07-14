@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,16 +28,14 @@ public class InventoryResource {
 	@Autowired
 	InventoryRepository inventoryRepository;
 	
-	@GetMapping("/inventory")
-	
-
-	@ApiOperation(value="Retorna a lista de itens do inventório")
+	@ApiOperation(value="Retorna a lista de itens do inventório")	
+	@RequestMapping(value="/inventory", method = RequestMethod.GET, produces="application/json")
 	public List<Inventory> listaInventory(){
 		return inventoryRepository.findAll();
 	}
 	
-	@GetMapping("/inventory/{id}")
 	@ApiOperation(value="Retorna um item específico do inventório")
+	@RequestMapping(value="/inventory/{id}", method = RequestMethod.GET, produces="application/json")
 	public ResponseEntity<Inventory> listaInventoryUnique(@PathVariable(value="id") long id){
 		Optional<Inventory> item = inventoryRepository.findById(id);
 		if(item.isPresent())
@@ -49,14 +44,14 @@ public class InventoryResource {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	@PostMapping("/inventory")
 	@ApiOperation(value="Salva um item no inventório")
+	@RequestMapping(value="/inventory", method = RequestMethod.POST, consumes="application/json")
 	public Inventory saveInventory(@RequestBody Inventory item) {
 		return inventoryRepository.save(item);
 	}
 	
-	@DeleteMapping("/inventory/{id}")
 	@ApiOperation(value="Deleta um item específico do inventório")
+	@RequestMapping(value="/inventory/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Object> deleteItem(@PathVariable(value = "id") long id){
 		Optional<Inventory> item = inventoryRepository.findById(id);
 		if(item.isPresent()) {
@@ -68,8 +63,9 @@ public class InventoryResource {
 		}
 	}
 	
-	@PutMapping("/inventory/{id}")
+	
 	@ApiOperation(value="Atualiza um item específico do inventório")
+	@RequestMapping(value="/inventory/{id}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
 	public ResponseEntity<Inventory> putItem(@PathVariable(value = "id") long id, @RequestBody Inventory newItem){
 		Optional<Inventory> oldItem = inventoryRepository.findById(id);
 		if(oldItem.isPresent()) {
@@ -86,10 +82,11 @@ public class InventoryResource {
 		}
 	}
 	
-	@GetMapping("/howmany")
+	
 	@ApiOperation(value="Retorna quantos registros existem de acordo com o parametro complete."
 			+ " Esse parametro pode assumir 3 valores: All, True e False. Caso não seja passado,"
 			+ "o seu valor default é all.")
+	@RequestMapping(value="/howmany", method = RequestMethod.GET)
 	public ResponseEntity<Long> howMany(@RequestParam(name="complete", required = false, defaultValue = "all") String complete) {
 		if(complete.equals("all")) {
 			return new ResponseEntity<Long>(inventoryRepository.count(), HttpStatus.OK);
